@@ -1,65 +1,76 @@
 <template>
-  <div class="erp-layout">
-    <aside class="erp-sidebar">
-      <div class="brand">
-        <span class="brand-title">購物後台</span>
-        <span class="brand-subtitle">Commerce Admin Console</span>
+  <div class="grid grid-cols-[240px_1fr] min-h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="bg-gray-900 text-amber-50 flex flex-col p-6">
+      <div class="mb-7">
+        <span class="text-lg font-bold block">{{ brandTitle }}</span>
+        <span class="text-xs text-amber-50/70 mt-1.5 block">{{ brandSubtitle }}</span>
       </div>
-      <nav class="nav-list">
+      
+      <nav class="flex flex-col gap-2.5">
         <NuxtLink
           v-for="link in visibleLinks"
           :key="link.to"
           :to="link.to"
-          class="nav-item"
+          class="px-3 py-2.5 rounded-lg bg-white/8 text-sm transition-colors hover:bg-white/15 [&.router-link-active]:bg-white/20"
         >
           {{ link.label }}
         </NuxtLink>
       </nav>
-      <div v-if="subLinks.length" class="sub-nav">
-        <p class="sub-nav-title">子頁面</p>
+      
+      <div v-if="subLinks.length" class="mt-5 flex flex-col gap-2">
+        <p class="text-xs uppercase tracking-widest text-amber-50/60 mb-0">子頁面</p>
         <NuxtLink
           v-for="link in subLinks"
           :key="link.to"
           :to="link.to"
-          class="sub-nav-item"
+          class="px-2.5 py-2 rounded-lg bg-white/5 text-xs transition-colors hover:bg-white/12 [&.router-link-active]:bg-white/18"
         >
           {{ link.label }}
         </NuxtLink>
       </div>
-      <div class="sidebar-footer">
-        <p>資料皆為去識別化樣本</p>
+      
+      <div class="mt-auto text-xs text-amber-50/70">
+        <p class="m-0">資料皆為去識別化樣本</p>
       </div>
     </aside>
 
-    <div class="erp-main">
-      <header class="erp-topbar">
+    <!-- Main Content -->
+    <div class="flex flex-col">
+      <header class="flex justify-between items-center px-8 py-6 bg-white border-b border-gray-900/8">
         <div>
-          <p class="topbar-label">模組標題</p>
-          <h1 class="topbar-title">{{ activeTitle }}</h1>
+          <p class="m-0 mb-1 text-xs tracking-widest uppercase text-amber-700">模組標題</p>
+          <h1 class="m-0 text-[26px] text-gray-900">{{ activeTitle }}</h1>
         </div>
-        <div class="topbar-actions">
-          <div class="role-switch">
-            <span class="role-label">角色</span>
-            <select v-model="selectedRole" class="role-select">
+        <div class="flex gap-2.5 items-center">
+          <!-- Role Switcher (only for shop-admin routes) -->
+          <div v-if="isShopAdminRoute" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-amber-50 text-xs text-amber-900">
+            <span class="font-semibold">角色</span>
+            <select v-model="selectedRole" class="border-0 bg-transparent text-xs outline-none cursor-pointer">
               <option v-for="option in roleOptions" :key="option[0]" :value="option[0]">
                 {{ option[1] }}
               </option>
             </select>
           </div>
-          <div class="user-chip">
+          
+          <!-- User Chip -->
+          <div class="flex flex-col gap-1 px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 text-xs font-semibold">
             <span>{{ currentUser.name }}</span>
-            <span class="user-role">{{ roleLabel }}</span>
+            <span class="text-[11px] text-amber-700">{{ roleLabel }}</span>
           </div>
-          <span class="chip">展示環境</span>
-          <span class="chip outline">版本 v1.0</span>
+          
+          <span class="px-3 py-1.5 rounded-full bg-orange-500 text-gray-900 text-xs font-semibold">展示環境</span>
+          <span class="px-3 py-1.5 rounded-full border border-orange-500 text-orange-500 text-xs font-semibold">版本 v1.0</span>
         </div>
       </header>
 
-      <div v-if="lastDeniedRoute" class="access-alert">
+      <!-- Access Denied Alert -->
+      <div v-if="lastDeniedRoute" class="mx-8 mt-4 px-4 py-3 rounded-xl bg-red-100 text-red-700 text-sm font-semibold">
         權限不足，已導回總覽。無法進入：{{ lastDeniedRoute }}
       </div>
 
-      <section class="erp-content">
+      <!-- Content Area -->
+      <section class="p-8">
         <slot />
       </section>
     </div>
@@ -77,12 +88,22 @@ const { currentUser, lastDeniedRoute } = storeToRefs(erpStore)
 
 const navLinks = [
   { label: '總覽', to: '/shop/admin' },
-  { label: '採購', to: '/shop/admin/procurement', roles: ['admin', 'manager'] },
-  { label: '庫存', to: '/shop/admin/inventory', roles: ['admin', 'manager'] },
-  { label: '財務', to: '/shop/admin/finance', roles: ['admin', 'finance'] },
-  { label: '人資', to: '/shop/admin/hr', roles: ['admin', 'hr'] },
-  { label: '銷售', to: '/shop/admin/sales', roles: ['admin', 'sales'] },
-  { label: '報表', to: '/shop/admin/reports', roles: ['admin', 'manager', 'finance'] },
+  { label: '採購', to: '/shop/admin/procurement', roles: ['admin', 'manager'] as ErpRole[] },
+  { label: '庫存', to: '/shop/admin/inventory', roles: ['admin', 'manager'] as ErpRole[] },
+  { label: '財務', to: '/shop/admin/finance', roles: ['admin', 'finance'] as ErpRole[] },
+  { label: '人資', to: '/shop/admin/hr', roles: ['admin', 'hr'] as ErpRole[] },
+  { label: '銷售', to: '/shop/admin/sales', roles: ['admin', 'sales'] as ErpRole[] },
+  { label: '報表', to: '/shop/admin/reports', roles: ['admin', 'manager', 'finance'] as ErpRole[] },
+]
+
+const projectsLinks = [
+  { label: '專案總覽', to: '/projects' },
+  { label: '購物網站', to: '/projects/shop' },
+  { label: '購物後台', to: '/projects/shop-admin' },
+  { label: 'Python 爬蟲', to: '/projects/python-scraper' },
+  { label: '審計系統', to: '/projects/shop-admin/audit' },
+  { label: '新聞系統', to: '/projects/news' },
+  { label: 'YouTube', to: '/projects/youtube' },
 ]
 
 const subNavMap: Record<string, Array<{ label: string; to: string }>> = {
@@ -94,9 +115,27 @@ const subNavMap: Record<string, Array<{ label: string; to: string }>> = {
   '/shop/admin/reports': [{ label: '報表排程', to: '/shop/admin/reports/schedule' }],
 }
 
-const visibleLinks = computed(() =>
-  navLinks.filter((link) => erpStore.hasRoleAccess(link.roles))
-)
+const isProjectsRoute = computed(() => route.path.startsWith('/projects'))
+const isShopAdminRoute = computed(() => route.path.startsWith('/shop/admin'))
+
+const brandTitle = computed(() => {
+  if (isProjectsRoute.value) {
+    return '專案示例'
+  }
+  return '購物後台'
+})
+
+const brandSubtitle = computed(() => {
+  if (isProjectsRoute.value) {
+    return 'Project Examples'
+  }
+  return 'Commerce Admin Console'
+})
+
+const visibleLinks = computed(() => {
+  const links = isProjectsRoute.value ? projectsLinks : navLinks.filter((link) => erpStore.hasRoleAccess(link.roles))
+  return links
+})
 
 const roleOptions = computed(() => {
   return Object.entries(erpStore.roleLabels) as Array<[ErpRole, string]>
@@ -114,11 +153,20 @@ const roleLabel = computed(() => {
 })
 
 const activeTitle = computed(() => {
+  if (isProjectsRoute.value) {
+    const matched = projectsLinks.find((item) => route.path === item.to)
+    return matched ? matched.label : '專案總覽'
+  }
+
   const matched = navLinks.find((item) => route.path.startsWith(item.to))
   return matched ? matched.label : '後台總覽'
 })
 
 const subLinks = computed(() => {
+  if (isProjectsRoute.value) {
+    return []
+  }
+
   const matched = navLinks.find((item) => route.path.startsWith(item.to))
   if (!matched || !matched.to || matched.to === '/shop/admin') {
     return []
@@ -127,211 +175,3 @@ const subLinks = computed(() => {
   return links.filter(() => erpStore.hasRoleAccess(matched.roles))
 })
 </script>
-
-<style scoped>
-  .erp-layout {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    min-height: 100vh;
-    background: #f4f5f8;
-  }
-
-  .erp-sidebar {
-    background: #1f1b2d;
-    color: #f5f0e6;
-    display: flex;
-    flex-direction: column;
-    padding: 24px 20px;
-  }
-
-  .brand-title {
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .brand-subtitle {
-    display: block;
-    font-size: 12px;
-    margin-top: 6px;
-    color: rgba(245, 240, 230, 0.7);
-  }
-
-  .nav-list {
-    display: grid;
-    gap: 10px;
-    margin-top: 28px;
-  }
-
-  .nav-item {
-    padding: 10px 12px;
-    border-radius: 10px;
-    color: inherit;
-    text-decoration: none;
-    background: rgba(255, 255, 255, 0.08);
-    font-size: 14px;
-    transition: background 0.2s ease;
-  }
-
-  .nav-item.router-link-active {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .sub-nav {
-    margin-top: 20px;
-    display: grid;
-    gap: 8px;
-  }
-
-  .sub-nav-title {
-    margin: 0;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: rgba(245, 240, 230, 0.6);
-  }
-
-  .sub-nav-item {
-    padding: 8px 10px;
-    border-radius: 8px;
-    color: inherit;
-    text-decoration: none;
-    font-size: 12px;
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .sub-nav-item.router-link-active {
-    background: rgba(255, 255, 255, 0.18);
-  }
-
-  .sidebar-footer {
-    margin-top: auto;
-    font-size: 12px;
-    color: rgba(245, 240, 230, 0.7);
-  }
-
-  .erp-main {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .erp-topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 32px;
-    background: #ffffff;
-    border-bottom: 1px solid rgba(31, 27, 45, 0.08);
-  }
-
-  .topbar-label {
-    margin: 0 0 4px;
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #9a7c5a;
-  }
-
-  .topbar-title {
-    margin: 0;
-    font-size: 26px;
-    color: #1f1b2d;
-  }
-
-  .topbar-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .role-switch {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 12px;
-    background: #f7f1ea;
-    font-size: 12px;
-    color: #6b4f3b;
-  }
-
-  .role-label {
-    font-weight: 600;
-  }
-
-  .role-select {
-    border: none;
-    background: transparent;
-    font-size: 12px;
-    color: inherit;
-    outline: none;
-  }
-
-  .user-chip {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 6px 12px;
-    border-radius: 12px;
-    background: #fff4e7;
-    color: #6b4f3b;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .user-role {
-    font-size: 11px;
-    color: #9a7c5a;
-  }
-
-  .access-alert {
-    margin: 16px 32px 0;
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: #ffe0df;
-    color: #a6342e;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .chip {
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: #ff9f4a;
-    color: #1f1b2d;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .chip.outline {
-    background: transparent;
-    border: 1px solid #ff9f4a;
-    color: #ff9f4a;
-  }
-
-  .erp-content {
-    padding: 32px;
-  }
-
-  @media (max-width: 900px) {
-    .erp-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .erp-sidebar {
-      flex-direction: row;
-      align-items: center;
-      overflow-x: auto;
-      gap: 12px;
-    }
-
-    .nav-list {
-      grid-auto-flow: column;
-      grid-auto-columns: max-content;
-      margin-top: 0;
-    }
-
-    .sidebar-footer {
-      display: none;
-    }
-  }
-</style>

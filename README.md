@@ -151,6 +151,51 @@ Create `.env` file from `.env.example`:
 ```env
 NUXT_PUBLIC_APP_NAME=Vue Practice
 NUXT_PUBLIC_API_BASE_URL=http://localhost:3000/api
+
+# Steam Web API (Optional - Required for Steam News feature)
+# Get your key from: https://steamcommunity.com/dev/apikey
+NUXT_STEAM_API_KEY=your_steam_api_key_here
+```
+
+#### Steam API Key Setup
+
+The Steam News feature requires a Steam Web API Key. To set it up:
+
+1. Visit [Steam Web API Key page](https://steamcommunity.com/dev/apikey)
+2. Log in with your Steam account
+3. Register your domain (for development, use `localhost`)
+4. Copy the generated API Key
+5. Add it to your `.env` file as `NUXT_STEAM_API_KEY`
+6. Restart your development server
+
+**Note:** Steam News functionality will be disabled if the API Key is not configured.
+
+#### Steam API Usage
+
+The Steam News API supports flexible configuration:
+
+**Server API Endpoints:**
+- `GET /api/steam/community?count=20&appids=730,570,1172470`
+  - `count`: Number of news items (default: 20)
+  - `appids`: Comma-separated game AppIDs (optional, uses popular games by default)
+
+- `GET /api/steam/sales?count=15&appids=593110,730&tag=特賣活動`
+  - `count`: Number of news items (default: 15)
+  - `appids`: Comma-separated game AppIDs (optional)
+  - `tag`: Custom tag for news items (optional, default: "特賣活動")
+
+**Client API:**
+```typescript
+import { getSteamCommunityNews, getSteamSalesNews } from '~/pages/projects/news/api/steamApi'
+
+// Using default popular games
+const news = await getSteamCommunityNews(20)
+
+// Using custom game AppIDs
+const customNews = await getSteamCommunityNews(20, [730, 570, 1172470])
+
+// Sales news with custom configuration
+const salesNews = await getSteamSalesNews(15, [593110, 730], 'Weekend Sale')
 ```
 
 ### TypeScript
